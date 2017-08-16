@@ -48,7 +48,7 @@ def getMarketHistory(market):
         pass
 
     if (response.json()['success'] == True):
-        print("getMarketHistory: Success detected")
+        logger.info("getMarketHistory: success in JSON responce detected")
         return(response.json()['result'])
     else:
         logger.error("JSON respince returned bad result: " + response.json()['message'])
