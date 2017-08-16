@@ -103,16 +103,16 @@ def updateBittrexMarketHistory():
         marketHistory = newMarketHistory
 
 
-def pushMarketHistoryToInflux(listHistory):
-    logger.info("starting pushMarketHistoryToInflux")
+def pushMarketHistoryToInflux(market, listHistory):
+    logger.info("starting pushMarketHistoryToInflux for market: " + market)
     for entry in listHistory:
         try:
-            client.write_points(formJSONBodyFromHistoricalTransaction("marketHistory", entry))
+            client.write_points(formJSONBodyFromHistoricalTransaction(market, "marketHistory", entry))
         except influxdb.exceptions.InfluxDBServerError as e:
             logger.error("InfluxDBServerError :" + str(e))
 
 def recordMarketHistory(market):
-    pushMarketHistoryToInflux(getMarketHistory(market))
+    pushMarketHistoryToInflux(market, getMarketHistory(market))
 
 
 def updateMarketHistories():

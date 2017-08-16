@@ -2,13 +2,14 @@ from influxdb import *
 import json
 
 
-def formJSONBodyFromHistoricalTransaction(typpe, val):
+def formJSONBodyFromHistoricalTransaction(market, typpe, val):
     jsonBody = [
     {
         "measurement": typpe,
         "tags": {
             'fillType': val['FillType'],
-            'orderType': val['OrderType']
+            'orderType': val['OrderType'],
+            'market': market
         },
         "time": val['TimeStamp'],
         "fields": {
