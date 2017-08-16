@@ -1,4 +1,5 @@
 import requests
+from logmod import *
 import json
 bittrexURL = "https://bittrex.com/api/v1.1"
 getMarketsURL = bittrexURL + '/public/getmarkets'
@@ -14,30 +15,30 @@ def getMarkets():
     try:
         response = requests.get(getMarketsURL)
     except ConnectionError as error:
-        print(error)
+        logger.error("getMarkets Connection error:" + error)
         pass
 
     if ((response.json()['success']== True)):
         #print(response.json()['result'])
         return(response.json()['result'])
     else:
-        print("Epic Fail")
+        logger.error("JSON respince returned bad result: "+ response.json()['message'])
         # good stuff, adopt to other functions
-        raise NameError("getMarkets exeption: " + response.json()['message'])
+        #raise NameError("getMarkets exeption: " + response.json()['message'])
 
 def getMarketSummary(market):
     try:
         response = requests.get(getMarketSummaryURL + "?market=" + market)
     except ConnectionError as error:
-        print(error)
+        logger.error("getMarketSummary Connection error:" + error)
         pass
 
     if (response.json()['success'] == True):
-        print("Success detected")
+        logger.info("getMarketSummary success in JSON responce detected")
     else:
-        print("Epic Fail")
+        logger.error("JSON respince returned bad result: " + response.json()['message'])
         # good stuff, adopt to other functions
-        raise NameError("getMarketSummary exeption: " + response.json()['message'])
+        #raise NameError("getMarketSummary exeption: " + response.json()['message'])
 
 def getMarketHistory(market):
     try:
@@ -48,19 +49,18 @@ def getMarketHistory(market):
 
     if (response.json()['success'] == True):
         print("getMarketHistory: Success detected")
-
         return(response.json()['result'])
     else:
-        print("Epic Fail")
+        logger.error("JSON respince returned bad result: " + response.json()['message'])
         # good stuff, adopt to other functions
-        raise NameError("getMarketHistory exeption: " + response.json()['message'])
+        # raise NameError("getMarketHistory exeption: " + response.json()['message'])
 
 def getOrderbook(market, type, depth):
     print("starting gerOrderBook ofr market: " + market)
     try:
         response = requests.get(getOrderbookURL + "?market=" + market + "&type=" + type + "&depth=" + depth)
     except ConnectionError as error:
-        print(error)
+        logger.error("JSON respince returned bad result: " + response.json()['message'])
         pass
 
     print("getOrderbook for market: " + market)
@@ -68,7 +68,7 @@ def getOrderbook(market, type, depth):
         print("Success detected")
         return response.json()['result']
     else:
-        print("Epic Fail")
+        logger.error("JSON respince returned bad result: " + response.json()['message'])
         # good stuff, adopt to other functions
         raise NameError("getorderbook exeption: " + response.json()['message'])
 

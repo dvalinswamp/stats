@@ -1,19 +1,19 @@
 import requests
 import json
 from time import sleep, time
-from marketfunctions import *
 import threading
 from influx import *
 import influxdb
 import datetime
-import timeit
+from marketfunctions import *
+from logmod import *
 
 influxhost = '165.227.155.203'
 influxport = "8086"
 influxuser = "explorer"
 influxpassword = "timeseries4days"
 
-
+'''
 class singleMarket():
     def __init__(self, MarketCurrency,
                         BaseCurrency,
@@ -48,24 +48,6 @@ class singleMarket():
                 print("new transaction detected")
                 self.orderBookHistory.append(order)
 
-    def dumpNewOrderToFile(self, MarketName, Id,
-                        TimeStamp,
-                        Quantity,
-                        Price,
-                        Total,
-                        FillType,
-                        OrderType,):
-    #not tested
-        filename = MarketName + ".txt"
-        with open(filename, "a") as myfile:
-            myfile.write(Id + "," +
-                    TimeStamp+ "," +
-                    Quantity + "," +
-                    Price + "," +
-                    Total + "," +
-                    FillType + "," +
-                    OrderType)
-
     # does it look like accumulationg
     def anal(self):
         pass
@@ -79,7 +61,6 @@ class singleMarket():
     def reportCandidates(self):
         pass
 
-"""
 class order():
     def __init__(self, Id,
                     TimeStamp,
@@ -95,9 +76,9 @@ class order():
         self.Total = Total
         self.FillType = FillType
         self.OrderType = OrderType
-"""
-apikey = 'c4669cec85f945958ab58620e6e4897c'
-apisecret = 'f60594c0fa514ef08dd832e0f2c1e606'
+'''
+apikey = ''
+apisecret = ''
 nonce = datetime.datetime.now()
 
 #####################################
@@ -105,7 +86,7 @@ def MarketExplorer():
 # generic market Exploration block
 # to be executed as a separate thread runing every hour.
     while True:
-        print(str(datetime.datetime.now()) + ": staring MarketExplorer()")
+        logger.info("staring MarketExplorer()")
         allMarkets = getMarkets()
         BTCMarkets = getBTCMarkets(allMarkets)
         updateMarketNames(BTCMarkets)
@@ -123,12 +104,13 @@ def updateBittrexMarketHistory():
 
 
 def pushMarketHistoryToInflux(listHistory):
-    print(str(datetime.datetime.now()) + ": starting pushMarketHistoryToInflux")
+    logger.info("starting pushMarketHistoryToInflux")
     for entry in listHistory:
         try:
             client.write_points(formJSONBodyFromHistoricalTransaction("marketHistory", entry))
         except influxdb.exceptions.InfluxDBServerError as e:
-            print("InfluxDBServerError :" + str(e))
+            logger.error("InfluxDBServerError :" + str(e))
+
 def recordMarketHistory(market):
     pushMarketHistoryToInflux(getMarketHistory(market))
 
@@ -139,13 +121,13 @@ def updateMarketHistories():
         if(len(localMarketNames) >= 1):
             marketsUpdateTimestart = time()
             for i in localMarketNames:
-                print(str(datetime.datetime.now()) + ": saving data for market " + i)
+                logger.info("saving data for market " + i)
                 recordMarketHistory(i)
             marketsUpdateTimeEnd = time()
             #finish time
-            print(str(datetime.datetime.now()) + ": market history Loop finished in " + str(marketsUpdateTimeEnd - marketsUpdateTimestart) + " seconds")
+            logger.info("market history Loop finished in " + str(marketsUpdateTimeEnd - marketsUpdateTimestart) + " seconds")
         elif(len(localMarketNames) == 0 ):
-            print(str(datetime.datetime.now()) + "no markets present. Init Phase?")
+            logger.info("no markets present. Init Phase?")
             sleep(1)
 
 client = InfluxDBClient(influxhost, influxport, influxuser , influxpassword, 'bittrex')
