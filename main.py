@@ -130,25 +130,29 @@ def updateMarketHistories():
             logger.info("no markets present. Init Phase?")
             sleep(1)
 
-client = InfluxDBClient(influxhost, influxport, influxuser , influxpassword, 'bittrex')
-thread1 = threading.Thread(target = MarketExplorer)
-thread2 = threading.Thread(target = updateMarketHistories)
+def updateMarketsSTDevAndVolume():
+    while True:
+        localMarketNames = marketNames
+        if (len(localMarketNames) >= 1):
+            logger.info("updateMarketsSTDevAndVolume: Starting markets STdev And Volume routine")
+            start = time()
+            for i in localMarketNames:
+                logger.info("updateMarketsSTDevAndVolume: Starting markets STdev And Volume Function for market: " + i)
+                updateSellSTdevAndVolumeOver10minutes(client, i)
+            duration = time() - start
+            logger.info("updateMarketsSTDevAndVolume: Markets STdev And Volume Function finished in: " + str(duration))
+            logger.info("updateMarketsSTDevAndVolume: Sleep for: " + str(300-duration))
+            sleep(300-duration)
+        elif (len(localMarketNames) == 0):
+            logger.info("updateMarketsSTDevAndVolume: No markets present. Init Phase?")
+            sleep(1)
+
+client = InfluxDBClient(influxhost, influxport, influxuser, influxpassword, 'bittrex')
+thread1 = threading.Thread(target=MarketExplorer)
+thread2 = threading.Thread(target=updateMarketHistories)
+thread3 = threading.Thread(target=updateMarketsSTDevAndVolume)
 
 thread1.start()
 thread2.start()
+thread3.start()
 
-"""
-
-for i in BTCMarkets:
-    markets.append(singleMarket(i['MarketCurrency'],
-                    i['BaseCurrency'],
-                    i['MarketCurrencyLong'],
-                    i['BaseCurrencyLong'],
-                    i['MinTradeSize'],
-                    i['MarketName'],
-                    i['IsActive'],
-                    i['Created'],
-                    i['Notice'],
-                    i['IsSponsored'],
-                    i['LogoUrl']))
-"""

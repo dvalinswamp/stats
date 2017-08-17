@@ -26,6 +26,7 @@ def getMarkets():
         # good stuff, adopt to other functions
         #raise NameError("getMarkets exeption: " + response.json()['message'])
 
+
 def getMarketSummary(market):
     try:
         response = requests.get(getMarketSummaryURL + "?market=" + market)
@@ -39,6 +40,7 @@ def getMarketSummary(market):
         logger.error("JSON respince returned bad result: " + response.json()['message'])
         # good stuff, adopt to other functions
         #raise NameError("getMarketSummary exeption: " + response.json()['message'])
+
 
 def getMarketHistory(market):
     try:
@@ -54,6 +56,7 @@ def getMarketHistory(market):
         logger.error("JSON respince returned bad result: " + response.json()['message'])
         # good stuff, adopt to other functions
         # raise NameError("getMarketHistory exeption: " + response.json()['message'])
+
 
 def getOrderbook(market, type, depth):
     print("starting gerOrderBook ofr market: " + market)
@@ -72,6 +75,7 @@ def getOrderbook(market, type, depth):
         # good stuff, adopt to other functions
         raise NameError("getorderbook exeption: " + response.json()['message'])
 
+
 def getMarketName(allMaketsItem):
     return(allMaketsItem['MarketName'])
 
@@ -82,7 +86,9 @@ def updateMarketNames(markets):
             marketNames.append(marketName)
             print("updated marketNames with new market: " + marketName)
 
+
 def transformTransactionToTuple(transaction):
+
     print(transaction)
     return((transaction['Id'],
             transaction['TimeStamp'],
@@ -92,12 +98,14 @@ def transformTransactionToTuple(transaction):
             transaction['FillType'],
             transaction['OrderType']))
 
+
 def getBTCMarkets(markets):
     BTCMarkets = []
     for i in markets:
         if i['BaseCurrency'] == 'BTC':
             BTCMarkets.append(i)
     return BTCMarkets
+
 
 def getTickerResponce(market):
     try:
@@ -109,3 +117,5 @@ def getTickerResponce(market):
     if ((ticker_response.json()['success']== True)):
         print(ticker_response.json()['result']['Bid'])
         print(ticker_response.json()['result'])
+
+
