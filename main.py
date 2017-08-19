@@ -8,12 +8,12 @@ import datetime
 from marketfunctions import *
 from logmod import *
 
+'''
 influxhost = '165.227.155.203'
 influxport = "8086"
 influxuser = "explorer"
 influxpassword = "timeseries4days"
 
-'''
 class singleMarket():
     def __init__(self, MarketCurrency,
                         BaseCurrency,
@@ -103,14 +103,6 @@ def updateBittrexMarketHistory():
         marketHistory = newMarketHistory
 
 
-def pushMarketHistoryToInflux(market, listHistory):
-    logger.info("starting pushMarketHistoryToInflux for market: " + market)
-    for entry in listHistory:
-        try:
-            client.write_points(formJSONBodyFromHistoricalTransaction(market, "marketHistory", entry))
-        except influxdb.exceptions.InfluxDBServerError as e:
-            logger.error("InfluxDBServerError :" + str(e))
-
 def recordMarketHistory(market):
     pushMarketHistoryToInflux(market, getMarketHistory(market))
 
@@ -138,7 +130,7 @@ def updateMarketsSTDevAndVolume():
             start = time()
             for i in localMarketNames:
                 logger.info("updateMarketsSTDevAndVolume: Starting markets STdev And Volume Function for market: " + i)
-                updateSellSTdevAndVolumeOver10minutes(client, i)
+                updateSellSTdevAndVolumeOver10minutes(i)
             duration = time() - start
             logger.info("updateMarketsSTDevAndVolume: Markets STdev And Volume Function finished in: " + str(duration))
             logger.info("updateMarketsSTDevAndVolume: Sleep for: " + str(300-duration))
@@ -147,7 +139,26 @@ def updateMarketsSTDevAndVolume():
             logger.info("updateMarketsSTDevAndVolume: No markets present. Init Phase?")
             sleep(1)
 
-client = InfluxDBClient(influxhost, influxport, influxuser, influxpassword, 'bittrex')
+def updateSecondorderSTdev():
+    while True:
+        localMarketNames = marketNames
+        if (len(localMarketNames) >= 1):
+            logger.info("updateSecondorderSTdev: Starting markets STdev And Volume routine")
+            start = time()
+            for i in localMarketNames:
+                logger.info("updateSecondorderSTdev: Starting markets STdev And Volume Function for market: " + i)
+                updateSellSTdevAndVolumeOver10minutes(i)
+            duration = time() - start
+            logger.info("updateSecondorderSTdev: Markets 2nd order Stdev Function finished in: " + str(duration))
+            logger.info("updateSecondorderSTdev: Sleep for: " + str(300 - duration))
+            sleep(300 - duration)
+        elif (len(localMarketNames) == 0):
+            logger.info("updateSecondorderSTdev: No markets present. Init Phase?")
+            sleep(1)
+
+
+
+initDB()
 thread1 = threading.Thread(target=MarketExplorer)
 thread2 = threading.Thread(target=updateMarketHistories)
 thread3 = threading.Thread(target=updateMarketsSTDevAndVolume)
