@@ -89,7 +89,9 @@ def updateSellSTdevAndVolumeOver10minutes(market):
 
 
 #####testin section
-
+'''
 markets = ["BTC-LTC"]
 '''
+
+
 
